@@ -217,7 +217,10 @@ class PV(Equipment):
             return self.window_forecast
         # Fallback to the old global method
         # print(f"WARN: PV {self.DeviceID} 回退到全局预测数据加载方法。")
-        from .ExternalTools import get_RES_forecast_data
+        if __package__:
+            from .ExternalTools import get_RES_forecast_data
+        else:
+            from ExternalTools import get_RES_forecast_data
 
         return get_RES_forecast_data(self.DeviceID, self.DeviceType)
 
@@ -289,7 +292,10 @@ class WIND(Equipment):
 
         # Fallback to the old global method
         # print(f"WARN: WIND {self.DeviceID} 回退到全局预测数据加载方法。")
-        from .ExternalTools import get_RES_forecast_data
+        if __package__:
+            from .ExternalTools import get_RES_forecast_data
+        else:
+            from ExternalTools import get_RES_forecast_data
 
         return get_RES_forecast_data(self.DeviceID, self.DeviceType)
 

@@ -30,9 +30,23 @@ from docplex.mp.context import Context
 from docplex.mp.conflict_refiner import ConflictRefiner
 from flask import current_app
 
-from .Equipment import PV, WIND, DG, ESS, DL, TCR, Equipment
+if __package__:
+    from .Equipment import PV, WIND, DG, ESS, DL, TCR, Equipment
+else:
+    from Equipment import PV, WIND, DG, ESS, DL, TCR, Equipment
+
 import math
-from .bidding_module import generate_multi_period_bidding_curves
+
+if __package__:
+    try:
+        from .bidding_module import generate_multi_period_bidding_curves
+    except ImportError:
+        generate_multi_period_bidding_curves = None
+else:
+    try:
+        from bidding_module import generate_multi_period_bidding_curves
+    except ImportError:
+        generate_multi_period_bidding_curves = None
 
 
 class DeviceManager(object):
@@ -2730,6 +2744,12 @@ class VirtualPowerPlantHost(object):
                 )
             else:
                 print(f"✓ 生成电能量市场多段投标曲线 (分段数={self.Bid_segment_number})")
+                if generate_multi_period_bidding_curves is None:
+                    raise ImportError(
+                        "缺少 bidding_module.py，无法生成多段投标曲线；\n"
+                        "若只做本地脚本测试，请将 Bid_segment_number 设为 1，\n"
+                        "或补充 bidding_module.py。"
+                    )
                 vpp_energy_bidding_result = generate_multi_period_bidding_curves(
                     optimal_quantities=vpp_energy_output,
                     price_forecasts=energy_price_window,
